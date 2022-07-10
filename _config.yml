@@ -26,7 +26,7 @@ baseurl                  : # the subpath of your site, e.g. "/blog"
 repository               : "scho89/scho89.github.io"
 teaser                   : # path of fallback teaser image, e.g. "/assets/images/500x300.png"
 logo                     : # path of logo image to display in the masthead, e.g. "/assets/images/88x88.png"
-masthead_title           : "SCHO BLOG!!"
+masthead_title           : "SCHO BLOG"
 breadcrumbs            : false #true #, false (default)
 words_per_minute         : 200
 comments:
@@ -298,6 +298,8 @@ defaults:
       comments: true
       share: true
       related: true
+      toc: true
+      toc_sticky: true
 
   # all _pages
   - scope:
@@ -306,25 +308,3 @@ defaults:
     values:
       layout: single
       author_profile: true
-
-  # recipes collection
-  - scope:
-      path: ""
-      type: recipes
-    values:
-      layout: collection
-      author_profile: true    
-
-  # pets collection
-  - scope:
-      path: ""
-      type: pets
-    values:
-      layout: single
-
-  # portfolio collection
-  - scope:
-      path: ""
-      type: portfolio
-    values:
-      layout: single
