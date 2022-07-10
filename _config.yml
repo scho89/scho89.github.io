@@ -107,7 +107,7 @@ author:
   name             : "조상호 / Sangho Cho"
   avatar           : # path of avatar image, e.g. "/assets/images/bio-photo.jpg"
   bio              : "I am an **amazing** person."
-  location         : "Seoul"
+  location         : "Seoul, Republic of Korea"
   email            : 
   links:
     - label: "Email"
@@ -218,7 +218,7 @@ sass:
 
 # Outputting
 permalink: /:categories/:title/
-paginate: 5 # amount of posts to show
+paginate: 10 # amount of posts to show
 paginate_path: /page:num/
 timezone: "Asia/Seoul" # https://en.wikipedia.org/wiki/List_of_tz_database_time_zones
 
@@ -279,9 +279,15 @@ compress_html:
     envs: development
 
 
+
+collections:
+  recipes:
+    output: true
+
 # Defaults
 defaults:
-  # _posts
+  
+  # all posts
   - scope:
       path: ""
       type: posts
@@ -289,7 +295,36 @@ defaults:
       layout: single
       author_profile: true
       read_time: true
-      comments: # true
-      share: false
+      comments: true
+      share: true
       related: true
-      show_date: true
+
+  # all _pages
+  - scope:
+      path: ""
+      type: pages
+    values:
+      layout: single
+      author_profile: true
+
+  # recipes collection
+  - scope:
+      path: ""
+      type: recipes
+    values:
+      layout: collection
+      author_profile: true    
+
+  # pets collection
+  - scope:
+      path: ""
+      type: pets
+    values:
+      layout: single
+
+  # portfolio collection
+  - scope:
+      path: ""
+      type: portfolio
+    values:
+      layout: single
