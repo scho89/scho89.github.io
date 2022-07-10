@@ -106,9 +106,9 @@ analytics:
 author:
   name             : "조상호 / Sangho Cho"
   avatar           : # path of avatar image, e.g. "/assets/images/bio-photo.jpg"
-  bio              : "I am an **amazing** person."
-  location         : "Seoul, Republic of Korea"
-  email            : 
+  bio              : ""
+  location         : "Korea"
+  email            : "cho.sangho@outlook.com"
   links:
     - label: "Email"
       icon: "fas fa-fw fa-envelope-square"
