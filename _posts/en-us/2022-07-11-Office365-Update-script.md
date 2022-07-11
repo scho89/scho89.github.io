@@ -2,38 +2,39 @@
 title:  "Apps for Microsoft 365 update script"
 classes: wide
 categories: 
+  - en-us
   - Microsoft365
 tags:
   - PowerShell
+hidden: true
 ---
 
-## 작성 배경
-함께 일하던 [동료][pepuri]의 아이디어로 만들게 된 스크립트.    
-업무 특성 상 Office 클라이언트의 업데이트 채널이나 빌드를 변경할 일이 잦았는데, 이를 좀 더 편하게 하고자 만들었었다.  
-무엇이든지 지나고 나서 보면, 이전 작업에 부족한게 많이 보이기 마련이지요.  
-민망함을 무릅쓰고 이야기를 적어봅니다. 스크립트를 제작했을 당시 버전의 제 머리(?)를 이용합니다.
+## Background
+It started from idea of [colleague][pepuri].  
   
-임직원의 PC를 관리할 수 있는 인프라가 갖춰진 경우, Office 클라이언트의 버전을 관리할 수 있는 방법은 [다양합니다][docs_change_channels].  
-하지만, 그런 인프라를 갖추지 못한 환경에서는 특정 버전에서 발생하는 문제가 생긴 경우 이를 대처하는게 여간 까다로운 일이 아닙니다.  
-그런 환경에서 이를 통해 좀 더 편하게 문제에 대처할 수 있었으면 하는 마음을 담기도 했었습니다.  
+It was frequent job, changing Office client's update channel and build number. Due to nature of technical supporting things. So, I composed this script to make my work easier and more conveniently.  
+    
+Sometimes, what we made always seems too ugly, with time flies go on…  
+(In other words, maybe it can say that our skills are better now than the time when birth of our works…)  
+Even though It’s embarrassment on my work, I write down a story on it.  
   
-시간이 되면, 처음 만들 당시 보다는 좀 더 업그레이드된 버전의 머리(?)를 이용해 정리할 예정입니다.
+Someday, if I have a chance, I’ll make some enhancement on logics and entire structure.  
 
-## 수동으로 업데이트 채널, 빌드 변경
-Office 클라이언트의 채널, 빌드를 원하는 값으로 지정하려면 아래의 과정을 진행해야 합니다.  
+## Changing update channel and builds manually
+Following tasks need to be done to change update channel and builds for Office 365 click to run client.  
 
-### Office 클라이언트 업데이트 채널 변경
-아래 둘 중 하나의 방법을 이용할 수 있습니다.  
-  - OfficeC2RClient.exe를 이용 [채널명][docs_channel_name]
+### Changing update channel for Office client
+You can choose one of the below:  
+  - Using OfficeC2RClient.exe with [Channel name][docs_channel_name]
     ```powershell
     "C:\Program Files\Common Files\Microsoft Shared\ClickToRun\OfficeC2RClient.exe" /changesetting Channel=ChannelName
     ```
-  - 레지스트리 수정
-    - 다음 키를 원하는 채널에 맞게 변경해야합니다.  
+  - Modifing registry key
+    - Set following key as proper value, according to channel name.      
       `HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Office\ClickToRun\Configuration\CDNBaseUrl`
       ![registry]({{ site.url }}{{ site.baseurl }}/assets/images/posts/2022-07-10-Offfice365-Update-script-registry.png)
 
-      |채널 명|이전|주소|
+      |Channel name|Previous name|Value|
       |---|---|---|
       |Beta Channel|Insider Fast|http://officecdn.microsoft.com/pr/5440fd1f-7ecb-4221-8110-145efaa6372f|
       |Current Channel (Preview)|Insider Slow|http://officecdn.microsoft.com/pr/64256afe-f5d9-4f86-8936-8840a6a4f5be|
@@ -43,59 +44,59 @@ Office 클라이언트의 채널, 빌드를 원하는 값으로 지정하려면 
       |Semi-Annual Enterprise Channel|Semi-Annual Channel|http://officecdn.microsoft.com/pr/7ffbc6bf-bc32-4f92-8982-f9dd17fd3114|
       |DevMain Channel (Dogfood)||http://officecdn.microsoft.com/pr/ea4a4090-de26-49d7-93c1-91bff9e53fc3|
 
-    - 아래 키 삭제
+    - Remove following key
       `HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Office\ClickToRun\Updates\UpdateToVersion`
 
-### 특정 빌드로 업데이트 (다운그레이드) 진행
-각 채널에 맞는 [빌드 번호][docs_update_history]를 참고하여 업데이트 (다운그레이드)를 진행합니다.  
-빌드 번호가 맞지 않으면 `OfficeC2RClient.exe`를 실행해도 아무 반응이 없습니다.  
+### Update (downgrade) to specific build
+Update or downgrade to proper [build numbers][docs_update_history].  
+With incorrect build number, there will be no response with executing `OfficeC2RClient.exe`  
 
 ```powershell
 "C:\Program Files\Common Files\Microsoft Shared\ClickToRun\OfficeC2RClient.exe" /update user updatetoversion=16.0.0000.0000
 ```
 
-## 클라이언트 업데이트 스크립트
-하지만 이런 작업도 한두번이지요. 여러번 작업할때, 또는 장치가 여러대이면 이만저만 번거로운게 아닙니다.  
-그래서 아래와 같은 순서로 작동하는 스크립트를 작성합니다.
+## Office 365 client update script
+But it's too annoying job, if it should be done multiple time for lots of devices.  
+So, I wrote down a script running following tasks.  
 
-  1) 각 채널별 `CDNBaseUrl` 확인  
-  2) 각 채널에 맞는 빌드 번호를 확인  
-  3) 현재 설정된 `CDNBaseUrl`과 원하는 `CDNBaseUrl` 비교하여 값 변경 / `Updatetoversion` 키 삭제  
-  4) 업데이트 진행  
-  5) 양식을 사용하여 GUI 형태로 구현  
-  6) (필요한 경우) 자동 업데이트를 비활성화  
+  1) Get `CDNBaseUrl` for each update channels   
+  2) Get proper build numbers for each update channels    
+  3) Read current `CDNBaseUrl` and compare with ones for channel to change / Remove `Updatetoversion`   
+  4) Update client  
+  5) Create GUI with forms    
+  6) (In case of needed) disable automatic update    
 
-### 1) 각 채널별 CDNBaseUrl 확인
-직접... 테스트를 통해 값을 확인하였습니다.  
-[DevMain Channel][dogfood]을 제외한 모든 채널은 Docs문서를 참고하여 채널 변경 후 `CDNBaseUrl` 값을 확인할 수 있습니다.
+### 1) Get `CDNBaseUrl` for each update channels
+I checked it manually... for each update channels.    
+Except [DevMain Channel][dogfood], you can get all `CDNBaseUrl` value for each channel by changing it!
 
-### 2) 각 채널에 맞는 빌드 번호를 확인
-Microsoft Docs에서 각 채널별 빌드 번호를 확인할 수 있습니다.
-스크립트에서는 Docs 문서의 HTML 본문에서 채널별 빌드를 정규식을 통해 분류했습니다.
+### 2) Get proper build numbers for each update channels
+You can refer [Microsoft Docs][docs_update_history] for all build numbers for Office click to run client.  
+I filter it using regular expression from HTML body.  
 
-문서 본문은 [`Invoke-WebRequest`][Invoke-WebRequest]를 통해 가져올 수 있습니다.
+You can get HTML body using [`Invoke-WebRequest`][Invoke-WebRequest].
 
 ```powershell
 $res = Invoke-WebRequest -Uri "https://docs.microsoft.com/en-us/officeupdates/update-history-microsoft365-apps-by-date"
 $html = $res.content
 ```
 
-가져온 HTML 문서에서 태그와 적절한 키워드를 이용하여 각 채널에 맞는 빌드 목록을 추려냅니다.
+Filter out build numbers with proper keywords from HTML.
 
 ```powershell
 $current = [regex]::matches( $html, '<a href=\"(monthly-channel|current-channel)(.*?)</a>')
 ```
-  
-만약 원본 문서의 HTML 구조가 변경된다면, 정규식으로 필요한 데이터를 필터링 할 수 없어 빈 목록이 표시됩니다.
+
+It may displays empty lists, in case of changing on structure of HTML documents, by Docs author.  
 
 
-### 3) 현재 설정된 CDNBaseUrl과 원하는 CDNBaseUrl 비교하여 값 변경 / Updatetoversion 키 삭제
-레지스트리 키를 확인, 설정 및 삭제하는 cmdlet은 ItemProperty 명사를 이용합니다.
+### 3) Read current `CDNBaseUrl` and compare with ones for channel to change / Remove `Updatetoversion` 
+Use noun as ItemProperty in cmdlets to get, set, remove registry key.  
   - [Get-ItemProperty][Get-ItemProperty]
   - [Set-ItemProperty][Get-ItemProperty]
   - [Remove-ItemProperty][Remove-ItemProperty]
 
-레지스트리 값 수정을 위해 [`Start-Process`][Start-Process]를 이용해 필요한 부분만 상승된 권한(`-Verb RunAs`)으로  실행되게 하였습니다.  
+I used `-Verb RunAs` as parameter for the least privilege principle, to modify registry keys.   
 
 ```powershell
 if((Get-ItemProperty -Path Registry::HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Office\ClickToRun\Configuration).CDNBaseUrl -ne $CDNBaseUrlCurrent)        {
@@ -107,9 +108,9 @@ if((Get-ItemProperty -Path Registry::HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Offic
 }
 ```
 
-### 4) 업데이트 진행
-수동으로 진행할 때와 크게 다르지 않습니다. 
-DevMain 채널인 경우 정확한 빌드를 확인할 수 없기 때문에 빌드를 입력하지 않습니다. (해당 채널 최신 버전으로 업데이트.) 
+### 4) Update client
+Same as the one manually.  
+For DevMain channel, execute it without the build number, because it's hard to get correct build number.  
 ```powershell
 if($CmbChannel.Text -ne $nameDevMain){
     $build = "16.0."+(($CmbBuild.text -split "Build ")[1] -split "\)")[0]
@@ -118,14 +119,15 @@ if($CmbChannel.Text -ne $nameDevMain){
 else{& "$env:CommonProgramFiles\microsoft shared\ClickToRun\OfficeC2RClient.exe" /update user}
 ```
 
-### 5) 양식을 사용하여 GUI 형태로 구현 
-처음에는 단순히 텍스트로 최신 빌드 목록을 표시해주고 번호로 선택하는 형태로 구현했습니다.  
-하지만 시간이 지날수록 빌드 목록을 길어지고, 화면에 표시하기 번거로워 채널과 빌드를 드롭 다운 목록 형태로 만들었습니다.  
+### 5) Create GUI with forms
+It was only in text originally. It just displays latest build number and make you choose it.  
+But it was getting harder and harder as more update released.  
+So I made a from with drop-down list for builds and channels.  
   ![drop-down-list]({{ site.url }}{{ site.baseurl }}/assets/images/posts/2022-07-10-Offfice365-Update-script-drop-down-list.png)
   
-일부만 보면... 
-기본 폼을 만들고, 드롭 다운 리스트(ComboBox), 버튼, 체크박스 등을 추가합니다.  
-드롭 다운 리스틀 어떻게 채우는지, 이벤트 처리 (선택된 채널이 변경되는 경우, 그에 따른 빌드 목록 표시)를 어떻게 하는지 찾는데 시간을 좀 소요했던 기억이 납니다.  
+On part of full script... 
+You can see creating basic form and adding drop-down list (ComboBox), checkbox, etc...   
+I remember that it took a few hours to fill drop-down list with values and event handler (builds should shows according changes of selected channel)    
 
 ```powershell
 #Form 
@@ -147,7 +149,7 @@ $CmbChannel.Location = New-Object System.Drawing.Point(10,15)
 $CmbChannel.Size = New-Object System.Drawing.Size(330,80)
 $Form.controls.Add($CmbChannel)
 
-# 중략...
+# ...
 
 $BtnUpdate = New-Object System.Windows.Forms.Button
 $BtnUpdate.Text = "Update"
@@ -166,7 +168,7 @@ $Form.Controls.Add($ChkUpdate)
 $CmbChannel.Items.Add($nameCurrent) >> $null
 $CmbChannel.Items.Add($nameMonthlyEnt) >> $null
 
-# 중략...
+# ...
 
 #Event handler
 
@@ -183,7 +185,7 @@ $CmbChannel_SelectedIndexChanged =
         }
     }
 
-# 중략...
+# ...
 
     elseif($CmbChannel.Text -eq $nameDevMain){
         $BtnUpdate.Enabled = $true
@@ -197,11 +199,10 @@ $CmbBuild_SelectedIndexChanged = { $BtnUpdate.Enabled = $True }
 
 ```
 
-### 6) (필요한 경우) 자동 업데이트를 비활성화
-만약 특정 빌드에 문제가 있어 이전 버전으로 다운그레이드 하는 경우, 다시 자동으로 업데이트가 된다면 힘들게 되돌린 의미가 없어집니다.
+### 6) (In case of needed) disable automatic update
+What if, we downgraded it because some bugs on specific build, but it update again itself automatically...  what we have done is in vain..  
 
-  
-필요한 경우 자동 업데이트를 중지합니다.  
+In that case, we can disable automatic update.    
   ![drop-down-list]({{ site.url }}{{ site.baseurl }}/assets/images/posts/2022-07-10-Offfice365-Update-script-checkbox.png)
 ```powershell
 if($ChkUpdate.Checked -eq $true){
@@ -211,16 +212,15 @@ if($ChkUpdate.Checked -eq $true){
     }
 ```
 
-## 결과
-코드 전문은 아래에서 확인할 수 있습니다.  
-[Update-Office365][update-office365]
+## Result
+Entire code is available here: [Update-Office365][update-office365]  
 
-또는 PowerShell에서 아래의 명령어로 스크립트 설치도 가능합니다.  
+Or, you may install it from PowerShell.  
 ```powershell
 Install-Script Update-Office365
 ```
 
-설치된 스크립트는 보통 아래 경로에 저장됩니다.  
+Installed scripts are stored following path by default:    
 `C:\Users\<UserName>\Documents\WindowsPowerShell\Scripts`  
 
 [update-office365]: https://github.com/scho89/Update-Office365
