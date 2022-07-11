@@ -6,7 +6,7 @@ categories:
   - Microsoft365
 tags:
   - PowerShell
-hidden: true
+
 ---
 
 ## Background
