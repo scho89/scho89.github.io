@@ -6,6 +6,10 @@ categories:
   - Microsoft365
 tags:
   - PowerShell
+
+header:
+  teaser: /assets/images/posts/2022-07-10-Offfice365-Update-script-drop-down-list.png
+
 ---
 
 ## 작성 배경
