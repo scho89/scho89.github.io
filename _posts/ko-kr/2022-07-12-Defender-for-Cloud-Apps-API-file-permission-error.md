@@ -35,10 +35,9 @@ Invoke-RestMethod : {"detail": "Insufficient role based permissions", "correlati
 Microsoft를 통해 확인 시 [application context][docs_application_context] 통해서 인증하는 경우 file API를 사용할 수 없습니다. (2022/7/7 기준)  
 
 
-File API를 이용하기 위해서는 MDCA 포털에서 [레거시 방식][docs_legacy_method]의 API 키를 생성해서 사용해야합니다. (보안 확장 -> API 키)  
-(문서의 예제에서는 이 방법으로 설명하고 있습니다.)
+File API를 이용하기 위해서는 MDCA 포털에서 [레거시 방식][docs_legacy_method]의 API 키를 생성해서 사용해야합니다. (보안 확장 -> API 키, Docs의 예제에서는 이 방법으로 설명하고 있습니다.)  
   
-문서의 그림이 오래되어 하나 첨부합니다.  
+Docs의 그림이 오래되어 하나 첨부합니다.  
 ![securityextension]({{ site.url }}{{ site.baseurl }}/assets/images/posts/2022-07-12-Defender-for-Cloud-Apps-API-file-permission-error-securityextension.png)  
   
   
