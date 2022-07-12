@@ -6,6 +6,8 @@ categories:
 tags:
   - PowerShell
 
+hidden: true
+
 ---
 
 Sorry for inconvenience
