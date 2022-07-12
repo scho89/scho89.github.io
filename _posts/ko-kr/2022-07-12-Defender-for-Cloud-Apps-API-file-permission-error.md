@@ -8,7 +8,7 @@ tags:
   - Defender for Cloud Apps
 
 header:
-  teaser: /assets/images/posts/2022-07-10-Offfice365-Update-script-drop-down-list.png
+  teaser: /assets/images/posts/2022-07-12-Defender-for-Cloud-Apps-API-file-permission-error-symptom.png
 
 ---
 
