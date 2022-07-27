@@ -11,7 +11,6 @@ tags:
 header:
   teaser: /assets/images/posts/2022-07-26-EWS-impersonated-authentication-ews-download.png
 
-hidden: true
 
 ---
 
@@ -109,8 +108,7 @@ $folder.Empty([Microsoft.Exchange.WebServices.Data.DeleteMode]::HardDelete, $tru
 Impersonated 된 권한을 사용하기 위해서는 생성한 서비스 객체에 `ImpersonatedUserId` 값을 채워줘야합니다. 
 
 ```powershell
-$ImpersonatedUser = "admin@3namu.shop"
-$ImpersonatedUserId = New-Object Microsoft.Exchange.WebServices.Data.ImpersonatedUserId([Microsoft.Exchange.WebServices.Data.ConnectingIdType]::SMTPAddress,$ImpersonatedUser)
+$ImpersonatedUserId = New-Object Microsoft.Exchange.WebServices.Data.ImpersonatedUserId([Microsoft.Exchange.WebServices.Data.ConnectingIdType]::SMTPAddress,$MailboxName)
 $service.ImpersonatedUserId = $ImpersonatedUserId
 ```
 
