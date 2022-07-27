@@ -125,6 +125,8 @@ $mailboxes = Get-Mailbox -Resultsize Unlimited
 
 $mailboxes | %{
   $MailboxName = $_.WindowsEmailAddress
+  $ImpersonatedUserId = New-Object Microsoft.Exchange.WebServices.Data.ImpersonatedUserId([Microsoft.Exchange.WebServices.Data.ConnectingIdType]::SMTPAddress,$MailboxName)
+  $service.ImpersonatedUserId = $ImpersonatedUserId
   $folderid= new-object Microsoft.Exchange.WebServices.Data.FolderId([Microsoft.Exchange.WebServices.Data.WellKnownFolderName]::RecipientCache, $MailboxName)
   $folder = [Microsoft.Exchange.WebServices.Data.Folder]::Bind($service, $folderid)
   $folder.Empty([Microsoft.Exchange.WebServices.Data.DeleteMode]::HardDelete, $true)
