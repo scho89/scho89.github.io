@@ -91,7 +91,6 @@ $Service.Url = "https://mail.3namu.shop/EWS/Exchange.asmx"
 ```powershell
 $folderid= new-object Microsoft.Exchange.WebServices.Data.FolderId([Microsoft.Exchange.WebServices.Data.WellKnownFolderName]::Inbox ,$MailboxName)
 $folder = [Microsoft.Exchange.WebServices.Data.Folder]::Bind($service,$folderid)
-$folder.Empty([Microsoft.Exchange.WebServices.Data.DeleteMode]::HardDelete, $true);
 ```
 
 아래와 같은 권한 오류가 발생합니다.  
@@ -112,7 +111,7 @@ $ImpersonatedUserId = New-Object Microsoft.Exchange.WebServices.Data.Impersonate
 $service.ImpersonatedUserId = $ImpersonatedUserId
 ```
 
-다시한번 받은 편지함 연결을 시도해[보면 정상적으로 연결됩니다.
+다시한번 받은 편지함 연결을 시도해[보면 정상적으로 연결됩니다.  
 ![mailbox-connected]({{ site.url }}{{ site.baseurl }}/assets/images/posts/2022-07-26-EWS-impersonated-authentication-connected.png)
 
 
