@@ -1,0 +1,75 @@
+I"�%<h2 id="서론">서론</h2>
+<p>Microsoft Defender for Cloud Apps alert 및 세부내용 분석을 위한 스크립트를 작성하면서 특정 조건에서 <a href="https://docs.microsoft.com/en-us/defender-cloud-apps/api-files">file API</a>가 작동하지 않는것을 확인했습니다.<br />
+이곳 저곳 돌아다니며 찾아봤지만 관련 정보를 찾을 수 없었습니다. 혹시 다른이들에게 도움이 될까 하여 글로 남겨둡니다.</p>
+
+<h2 id="증상">증상</h2>
+<p><a href="https://docs.microsoft.com/en-us/defender-cloud-apps/api-authentication-application">application context</a>를 통해 인증한 뒤 file API를 호출하면 권한 오류가 발생합니다.<br />
+증상은 list file, fetch file 모두 발생합니다.</p>
+
+<p><img src="http://localhost:4000/assets/images/posts/2022-07-12-Defender-for-Cloud-Apps-API-file-permission-error-symptom.png" alt="symptom" /></p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>Invoke-RestMethod : {"detail": "Insufficient role based permissions", "correlation_id": "d0a34b91-baa1-4c3d-809d-db8ca7c10460"}
+위치 줄:1 문자:8
++ $res = Invoke-RestMethod -Uri "https://kor2.us3.portal.cloudappsecuri ...
++        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : InvalidOperation: (System.Net.HttpWebRequest:HttpWebRequest) [Invoke-RestMethod], WebException
+    + FullyQualifiedErrorId : WebCmdletWebResponseException,Microsoft.PowerShell.Commands.InvokeRestMethodCommand
+</code></pre></div></div>
+
+<h2 id="해결-방법">해결 방법</h2>
+<p>Microsoft를 통해 확인 시 <a href="https://docs.microsoft.com/en-us/defender-cloud-apps/api-authentication-application">application context</a> 통해서 인증하는 경우 file API를 사용할 수 없습니다. (2022/7/7 기준)</p>
+
+<p>File API를 이용하기 위해서는 MDCA 포털에서 <a href="https://docs.microsoft.com/en-us/defender-cloud-apps/api-tokens-legacy">레거시 방식</a>의 API 키를 생성해서 사용해야합니다. (보안 확장 -&gt; API 키)<br />
+(문서의 예제에서는 이 방법으로 설명하고 있습니다.)</p>
+
+<p>문서의 그림이 오래되어 하나 첨부합니다.<br />
+<img src="http://localhost:4000/assets/images/posts/2022-07-12-Defender-for-Cloud-Apps-API-file-permission-error-securityextension.png" alt="securityextension" /></p>
+
+<p><img src="http://localhost:4000/assets/images/posts/2022-07-12-Defender-for-Cloud-Apps-API-file-permission-error-apiToken.png" alt="apiToken" /></p>
+
+<p><a href="https://docs.microsoft.com/en-us/defender-cloud-apps/api-introduction#api-tokens">API token</a>을 사용하는 경우, Microsoft에서 권장하는 방식인 <a href="https://docs.microsoft.com/en-us/defender-cloud-apps/api-authentication-application">application context</a>과는 좀 다른 형태로 요청 헤더를 만들어야합니다.</p>
+
+<div class="language-powershell highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$apiKey</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"your api key"</span><span class="w">
+</span><span class="nv">$authToken</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">@{</span><span class="s2">"Authorization"</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"Token "</span><span class="err">+</span><span class="w"> </span><span class="nv">$apikey</span><span class="p">}</span><span class="w">
+</span><span class="nv">$res</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Invoke-RestMethod</span><span class="w"> </span><span class="nt">-Uri</span><span class="w"> </span><span class="s2">"https://kor2.us3.portal.cloudappsecurity.com/api/v1/files/"</span><span class="w"> </span><span class="nt">-Headers</span><span class="w"> </span><span class="nv">$authToken</span><span class="w"> 
+</span></code></pre></div></div>
+
+<p>API 토큰을 이용하는 경우 아래와 같이 정상작동합니다.</p>
+
+<p><img src="http://localhost:4000/assets/images/posts/2022-07-12-Defender-for-Cloud-Apps-API-file-permission-error-legacy.png" alt="apiToken" /></p>
+
+<h2 id="증상-재현-방법">증상 재현 방법</h2>
+<p><a href="https://docs.microsoft.com/en-us/defender-cloud-apps/api-authentication-application">application context</a>를 이용해 file API를 호출하는 샘플 코드는 다음과 같습니다.</p>
+
+<div class="language-powershell highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c"># Basic information</span><span class="w">
+</span><span class="nv">$ClientId</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"72898937-bfcf-412e-a554-a4e438d6095c"</span><span class="w">
+</span><span class="nv">$ClientSecret</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">'*'</span><span class="w">
+</span><span class="nv">$TenantId</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">'023ef17e-4a76-4230-a8f2-e0b9e89627bf'</span><span class="w">
+</span><span class="nv">$resourceAppIdUri</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">'05a65629-4c1b-48c1-a78b-804c4abdd4af'</span><span class="w">
+</span><span class="nv">$oAuthUri</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"https://login.microsoftonline.com/</span><span class="nv">$TenantId</span><span class="s2">/oauth2/token"</span><span class="w">
+
+</span><span class="nv">$authBody</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="n">Ordered</span><span class="p">]</span><span class="w"> </span><span class="p">@{</span><span class="w">
+    </span><span class="nx">resource</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"</span><span class="nv">$resourceAppIdUri</span><span class="s2">"</span><span class="w">
+    </span><span class="nx">client_id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"</span><span class="nv">$ClientId</span><span class="s2">"</span><span class="w">
+    </span><span class="nx">client_secret</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"</span><span class="nv">$ClientSecret</span><span class="s2">"</span><span class="w">
+    </span><span class="nx">grant_type</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">'client_credentials'</span><span class="w">
+</span><span class="p">}</span><span class="w">
+
+</span><span class="nv">$authResponse</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Invoke-RestMethod</span><span class="w"> </span><span class="nt">-Method</span><span class="w"> </span><span class="nx">Post</span><span class="w"> </span><span class="nt">-Uri</span><span class="w"> </span><span class="nv">$oAuthUri</span><span class="w"> </span><span class="nt">-Body</span><span class="w"> </span><span class="nv">$authBody</span><span class="w"> </span><span class="nt">-ErrorAction</span><span class="w"> </span><span class="nx">Stop</span><span class="w">
+</span><span class="nv">$token</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nv">$authResponse</span><span class="o">.</span><span class="nf">access_token</span><span class="w">
+</span><span class="nv">$authToken</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">@{</span><span class="s1">'Authorization'</span><span class="o">=</span><span class="s1">'Bearer '</span><span class="err">+</span><span class="nv">$token</span><span class="p">}</span><span class="w">
+
+</span><span class="nv">$res</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Invoke-RestMethod</span><span class="w"> </span><span class="nt">-Uri</span><span class="w"> </span><span class="s2">"https://kor2.us3.portal.cloudappsecurity.com/api/v1/files/"</span><span class="w"> </span><span class="nt">-Headers</span><span class="w"> </span><span class="nv">$authToken</span><span class="w"> 
+</span></code></pre></div></div>
+
+<p>이떄 API 호출에 필요한 권한(investigation.read)는 어플리케이션에 할당되어 있습니다. 다른 모든 권한을 할당하더라도 증상은 해결되지 않습니다.</p>
+
+<p><img src="http://localhost:4000/assets/images/posts/2022-07-12-Defender-for-Cloud-Apps-API-file-permission-error-apipermission.png" alt="apipermission" /></p>
+
+<h2 id="기타-의견">기타 의견</h2>
+<p>Activity API에서 제공하는 pagination을 alert이나 file에서는 제공하지 않는 것 같습니다.<br />
+<code class="language-plaintext highlighter-rouge">hasNext</code>가 <code class="language-plaintext highlighter-rouge">true</code>이지만 <code class="language-plaintext highlighter-rouge">isScan: true</code>를 body에 넣어 POST를 보내도 다음 페이지의 쿼리 주소는 제공되지 않습니다. Alert이나 file문서에 따로 언급이 없는 것을 보니, Activity 에서만 기능을 제공하는것 같습니다.</p>
+
+<p><a href="https://docs.microsoft.com/en-us/defender-cloud-apps/api-activities-investigate-script#request-body-parameters">Activities requset body parameters</a></p>
+
+:ET

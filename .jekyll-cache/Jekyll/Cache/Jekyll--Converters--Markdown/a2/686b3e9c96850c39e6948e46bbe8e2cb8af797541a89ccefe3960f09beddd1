@@ -1,0 +1,255 @@
+I"Xx<h2 id="background">Background</h2>
+<p>It starts from idea of <a href="https://blog.limcm.kr/">colleague</a>.</p>
+
+<p>업무 특성 상 Office 클라이언트의 업데이트 채널이나 빌드를 변경할 일이 잦았는데, 이를 좀 더 편하게 하고자 만들었었다.<br />
+무엇이든지 지나고 나서 보면, 이전 작업에 부족한게 많이 보이기 마련이지요.<br />
+민망함을 무릅쓰고 이야기를 적어봅니다. 스크립트를 제작했을 당시 버전의 제 머리(?)를 이용합니다.</p>
+
+<p>임직원의 PC를 관리할 수 있는 인프라가 갖춰진 경우, Office 클라이언트의 버전을 관리할 수 있는 방법은 <a href="https://docs.microsoft.com/en-us/deployoffice/change-update-channels">다양합니다</a>.<br />
+하지만, 그런 인프라를 갖추지 못한 환경에서는 특정 버전에서 발생하는 문제가 생긴 경우 이를 대처하는게 여간 까다로운 일이 아닙니다.<br />
+그런 환경에서 이를 통해 좀 더 편하게 문제에 대처할 수 있었으면 하는 마음을 담기도 했었습니다.</p>
+
+<p>시간이 되면, 처음 만들 당시 보다는 좀 더 업그레이드된 버전의 머리(?)를 이용해 정리할 예정입니다.</p>
+
+<h2 id="수동으로-업데이트-채널-빌드-변경">수동으로 업데이트 채널, 빌드 변경</h2>
+<p>Office 클라이언트의 채널, 빌드를 원하는 값으로 지정하려면 아래의 과정을 진행해야 합니다.</p>
+
+<h3 id="office-클라이언트-업데이트-채널-변경">Office 클라이언트 업데이트 채널 변경</h3>
+<p>아래 둘 중 하나의 방법을 이용할 수 있습니다.</p>
+<ul>
+  <li>OfficeC2RClient.exe를 이용 <a href="https://docs.microsoft.com/en-us/deployoffice/update-channels-changes#office-deployment-tool">채널명</a>
+    <div class="language-powershell highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="s2">"C:\Program Files\Common Files\Microsoft Shared\ClickToRun\OfficeC2RClient.exe"</span><span class="w"> </span><span class="n">/changesetting</span><span class="w"> </span><span class="nx">Channel</span><span class="o">=</span><span class="n">ChannelName</span><span class="w">
+</span></code></pre></div>    </div>
+  </li>
+  <li>레지스트리 수정
+    <ul>
+      <li>
+        <p>다음 키를 원하는 채널에 맞게 변경해야합니다.<br />
+<code class="language-plaintext highlighter-rouge">HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Office\ClickToRun\Configuration\CDNBaseUrl</code>
+<img src="http://localhost:4000/assets/images/posts/2022-07-10-Offfice365-Update-script-registry.png" alt="registry" /></p>
+
+        <table>
+          <thead>
+            <tr>
+              <th>채널 명</th>
+              <th>이전</th>
+              <th>주소</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Beta Channel</td>
+              <td>Insider Fast</td>
+              <td>http://officecdn.microsoft.com/pr/5440fd1f-7ecb-4221-8110-145efaa6372f</td>
+            </tr>
+            <tr>
+              <td>Current Channel (Preview)</td>
+              <td>Insider Slow</td>
+              <td>http://officecdn.microsoft.com/pr/64256afe-f5d9-4f86-8936-8840a6a4f5be</td>
+            </tr>
+            <tr>
+              <td>Currnet Channel</td>
+              <td>Monthly Channel</td>
+              <td>http://officecdn.microsoft.com/pr/492350f6-3a01-4f97-b9c0-c7c6ddf67d60</td>
+            </tr>
+            <tr>
+              <td>Montly Enterprise Channel</td>
+              <td> </td>
+              <td>http://officecdn.microsoft.com/pr/55336b82-a18d-4dd6-b5f6-9e5095c314a6</td>
+            </tr>
+            <tr>
+              <td>Semi-Annual Enterprise Channel (Preview)</td>
+              <td>Semi-Annual Channel (Targeted)</td>
+              <td>http://officecdn.microsoft.com/pr/b8f9b850-328d-4355-9145-c59439a0c4cf</td>
+            </tr>
+            <tr>
+              <td>Semi-Annual Enterprise Channel</td>
+              <td>Semi-Annual Channel</td>
+              <td>http://officecdn.microsoft.com/pr/7ffbc6bf-bc32-4f92-8982-f9dd17fd3114</td>
+            </tr>
+            <tr>
+              <td>DevMain Channel (Dogfood)</td>
+              <td> </td>
+              <td>http://officecdn.microsoft.com/pr/ea4a4090-de26-49d7-93c1-91bff9e53fc3</td>
+            </tr>
+          </tbody>
+        </table>
+      </li>
+      <li>
+        <p>아래 키 삭제
+<code class="language-plaintext highlighter-rouge">HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Office\ClickToRun\Updates\UpdateToVersion</code></p>
+      </li>
+    </ul>
+  </li>
+</ul>
+
+<h3 id="특정-빌드로-업데이트-다운그레이드-진행">특정 빌드로 업데이트 (다운그레이드) 진행</h3>
+<p>각 채널에 맞는 <a href="https://docs.microsoft.com/en-us/officeupdates/update-history-microsoft365-apps-by-date">빌드 번호</a>를 참고하여 업데이트 (다운그레이드)를 진행합니다.<br />
+빌드 번호가 맞지 않으면 <code class="language-plaintext highlighter-rouge">OfficeC2RClient.exe</code>를 실행해도 아무 반응이 없습니다.</p>
+
+<div class="language-powershell highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="s2">"C:\Program Files\Common Files\Microsoft Shared\ClickToRun\OfficeC2RClient.exe"</span><span class="w"> </span><span class="n">/update</span><span class="w"> </span><span class="nx">user</span><span class="w"> </span><span class="nx">updatetoversion</span><span class="o">=</span><span class="mf">16.0</span><span class="o">.</span><span class="nf">0000</span><span class="o">.</span><span class="nf">0000</span><span class="w">
+</span></code></pre></div></div>
+
+<h2 id="클라이언트-업데이트-스크립트">클라이언트 업데이트 스크립트</h2>
+<p>하지만 이런 작업도 한두번이지요. 여러번 작업할때, 또는 장치가 여러대이면 이만저만 번거로운게 아닙니다.<br />
+그래서 아래와 같은 순서로 작동하는 스크립트를 작성합니다.</p>
+
+<p>1) 각 채널별 <code class="language-plaintext highlighter-rouge">CDNBaseUrl</code> 확인<br />
+  2) 각 채널에 맞는 빌드 번호를 확인<br />
+  3) 현재 설정된 <code class="language-plaintext highlighter-rouge">CDNBaseUrl</code>과 원하는 <code class="language-plaintext highlighter-rouge">CDNBaseUrl</code> 비교하여 값 변경 / <code class="language-plaintext highlighter-rouge">Updatetoversion</code> 키 삭제<br />
+  4) 업데이트 진행<br />
+  5) 양식을 사용하여 GUI 형태로 구현<br />
+  6) (필요한 경우) 자동 업데이트를 비활성화</p>
+
+<h3 id="1-각-채널별-cdnbaseurl-확인">1) 각 채널별 CDNBaseUrl 확인</h3>
+<p>직접… 테스트를 통해 값을 확인하였습니다.<br />
+<a href="https://devblogs.microsoft.com/oldnewthing/20110802-00/?p=10003">DevMain Channel</a>을 제외한 모든 채널은 Docs문서를 참고하여 채널 변경 후 <code class="language-plaintext highlighter-rouge">CDNBaseUrl</code> 값을 확인할 수 있습니다.</p>
+
+<h3 id="2-각-채널에-맞는-빌드-번호를-확인">2) 각 채널에 맞는 빌드 번호를 확인</h3>
+<p>Microsoft Docs에서 각 채널별 빌드 번호를 확인할 수 있습니다.
+스크립트에서는 Docs 문서의 HTML 본문에서 채널별 빌드를 정규식을 통해 분류했습니다.</p>
+
+<p>문서 본문은 <a href="https://docs.microsoft.com/en-us/powershell/module/microsoft.powershell.utility/invoke-webrequest?view=powershell-7.2"><code class="language-plaintext highlighter-rouge">Invoke-WebRequest</code></a>를 통해 가져올 수 있습니다.</p>
+
+<div class="language-powershell highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$res</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Invoke-WebRequest</span><span class="w"> </span><span class="nt">-Uri</span><span class="w"> </span><span class="s2">"https://docs.microsoft.com/en-us/officeupdates/update-history-microsoft365-apps-by-date"</span><span class="w">
+</span><span class="nv">$html</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nv">$res</span><span class="o">.</span><span class="nf">content</span><span class="w">
+</span></code></pre></div></div>
+
+<p>가져온 HTML 문서에서 태그와 적절한 키워드를 이용하여 각 채널에 맞는 빌드 목록을 추려냅니다.</p>
+
+<div class="language-powershell highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nv">$current</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="n">regex</span><span class="p">]::</span><span class="n">matches</span><span class="p">(</span><span class="w"> </span><span class="nv">$html</span><span class="p">,</span><span class="w"> </span><span class="s1">'&lt;a href=\"(monthly-channel|current-channel)(.*?)&lt;/a&gt;'</span><span class="p">)</span><span class="w">
+</span></code></pre></div></div>
+
+<p>만약 원본 문서의 HTML 구조가 변경된다면, 정규식으로 필요한 데이터를 필터링 할 수 없어 빈 목록이 표시됩니다.</p>
+
+<h3 id="3-현재-설정된-cdnbaseurl과-원하는-cdnbaseurl-비교하여-값-변경--updatetoversion-키-삭제">3) 현재 설정된 CDNBaseUrl과 원하는 CDNBaseUrl 비교하여 값 변경 / Updatetoversion 키 삭제</h3>
+<p>레지스트리 키를 확인, 설정 및 삭제하는 cmdlet은 ItemProperty 명사를 이용합니다.</p>
+<ul>
+  <li><a href="https://docs.microsoft.com/en-us/powershell/module/microsoft.powershell.management/get-itemproperty?view=powershell-7.2">Get-ItemProperty</a></li>
+  <li><a href="https://docs.microsoft.com/en-us/powershell/module/microsoft.powershell.management/get-itemproperty?view=powershell-7.2">Set-ItemProperty</a></li>
+  <li><a href="https://docs.microsoft.com/en-us/powershell/module/microsoft.powershell.management/remove-itemproperty?view=powershell-7.2">Remove-ItemProperty</a></li>
+</ul>
+
+<p>레지스트리 값 수정을 위해 <a href="https://docs.microsoft.com/en-us/powershell/module/microsoft.powershell.management/start-process?view=powershell-7.2"><code class="language-plaintext highlighter-rouge">Start-Process</code></a>를 이용해 필요한 부분만 상승된 권한(<code class="language-plaintext highlighter-rouge">-Verb RunAs</code>)으로  실행되게 하였습니다.</p>
+
+<div class="language-powershell highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kr">if</span><span class="p">((</span><span class="n">Get-ItemProperty</span><span class="w"> </span><span class="nt">-Path</span><span class="w"> </span><span class="nx">Registry::HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Office\ClickToRun\Configuration</span><span class="p">)</span><span class="o">.</span><span class="nf">CDNBaseUrl</span><span class="w"> </span><span class="o">-ne</span><span class="w"> </span><span class="nv">$CDNBaseUrlCurrent</span><span class="p">)</span><span class="w">        </span><span class="p">{</span><span class="w">
+    </span><span class="nv">$ChannelChanged</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="bp">$true</span><span class="w">
+    </span><span class="n">Start-Process</span><span class="w"> </span><span class="nx">powershell.exe</span><span class="w"> </span><span class="nt">-Verb</span><span class="w"> </span><span class="nx">runAs</span><span class="p">{</span><span class="w">
+    </span><span class="n">Set-ItemProperty</span><span class="w"> </span><span class="nt">-Path</span><span class="w"> </span><span class="nx">Registry::HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Office\ClickToRun\Configuration</span><span class="w"> </span><span class="nt">-Name</span><span class="w"> </span><span class="nx">CDNBaseUrl</span><span class="w"> </span><span class="nt">-Value</span><span class="w"> </span><span class="s2">"http://officecdn.microsoft.com/pr/492350f6-3a01-4f97-b9c0-c7c6ddf67d60"</span><span class="w">
+    </span><span class="n">Remove-ItemProperty</span><span class="w"> </span><span class="nt">-Path</span><span class="w"> </span><span class="nx">Registry::HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Office\ClickToRun\Updates</span><span class="w"> </span><span class="nt">-Name</span><span class="w"> </span><span class="nx">UpdateToVersion</span><span class="w">
+    </span><span class="p">}</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre></div></div>
+
+<h3 id="4-업데이트-진행">4) 업데이트 진행</h3>
+<p>수동으로 진행할 때와 크게 다르지 않습니다. 
+DevMain 채널인 경우 정확한 빌드를 확인할 수 없기 때문에 빌드를 입력하지 않습니다. (해당 채널 최신 버전으로 업데이트.)</p>
+<div class="language-powershell highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kr">if</span><span class="p">(</span><span class="nv">$CmbChannel</span><span class="o">.</span><span class="nf">Text</span><span class="w"> </span><span class="o">-ne</span><span class="w"> </span><span class="nv">$nameDevMain</span><span class="p">){</span><span class="w">
+    </span><span class="nv">$build</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"16.0."</span><span class="o">+</span><span class="p">((</span><span class="nv">$CmbBuild</span><span class="o">.</span><span class="nf">text</span><span class="w"> </span><span class="o">-split</span><span class="w"> </span><span class="s2">"Build "</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span><span class="w"> </span><span class="o">-split</span><span class="w"> </span><span class="s2">"\)"</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span><span class="w">
+    </span><span class="o">&amp;</span><span class="w"> </span><span class="s2">"</span><span class="nv">$</span><span class="nn">env</span><span class="p">:</span><span class="nv">CommonProgramFiles</span><span class="s2">\microsoft shared\ClickToRun\OfficeC2RClient.exe"</span><span class="w"> </span><span class="n">/update</span><span class="w"> </span><span class="nx">user</span><span class="w"> </span><span class="nx">updatetoversion</span><span class="o">=</span><span class="nv">$build</span><span class="p">}</span><span class="w">
+
+</span><span class="kr">else</span><span class="p">{</span><span class="o">&amp;</span><span class="w"> </span><span class="s2">"</span><span class="nv">$</span><span class="nn">env</span><span class="p">:</span><span class="nv">CommonProgramFiles</span><span class="s2">\microsoft shared\ClickToRun\OfficeC2RClient.exe"</span><span class="w"> </span><span class="n">/update</span><span class="w"> </span><span class="nx">user</span><span class="p">}</span><span class="w">
+</span></code></pre></div></div>
+
+<h3 id="5-양식을-사용하여-gui-형태로-구현">5) 양식을 사용하여 GUI 형태로 구현</h3>
+<p>처음에는 단순히 텍스트로 최신 빌드 목록을 표시해주고 번호로 선택하는 형태로 구현했습니다.<br />
+하지만 시간이 지날수록 빌드 목록을 길어지고, 화면에 표시하기 번거로워 채널과 빌드를 드롭 다운 목록 형태로 만들었습니다.<br />
+  <img src="http://localhost:4000/assets/images/posts/2022-07-10-Offfice365-Update-script-drop-down-list.png" alt="drop-down-list" /></p>
+
+<p>일부만 보면… 
+기본 폼을 만들고, 드롭 다운 리스트(ComboBox), 버튼, 체크박스 등을 추가합니다.<br />
+드롭 다운 리스틀 어떻게 채우는지, 이벤트 처리 (선택된 채널이 변경되는 경우, 그에 따른 빌드 목록 표시)를 어떻게 하는지 찾는데 시간을 좀 소요했던 기억이 납니다.</p>
+
+<div class="language-powershell highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c">#Form </span><span class="w">
+
+</span><span class="n">Add-Type</span><span class="w"> </span><span class="nt">-AssemblyName</span><span class="w"> </span><span class="nx">System.Windows.Forms</span><span class="w">
+
+</span><span class="nv">$Form</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">New-Object</span><span class="w"> </span><span class="nx">system.Windows.Forms.Form</span><span class="w">
+</span><span class="nv">$Form</span><span class="o">.</span><span class="nf">Text</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"Office 365 Update Tool"</span><span class="w">
+</span><span class="nv">$Form</span><span class="o">.</span><span class="nf">Size</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">New-Object</span><span class="w"> </span><span class="nx">System.Drawing.Size</span><span class="p">(</span><span class="mi">370</span><span class="p">,</span><span class="mi">120</span><span class="p">)</span><span class="w">
+</span><span class="nv">$form</span><span class="o">.</span><span class="nf">MaximumSize</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">New-Object</span><span class="w"> </span><span class="nx">System.Drawing.Size</span><span class="p">(</span><span class="mi">370</span><span class="p">,</span><span class="mi">150</span><span class="p">)</span><span class="w">
+</span><span class="nv">$Form</span><span class="o">.</span><span class="nf">MinimumSize</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">New-Object</span><span class="w"> </span><span class="nx">System.Drawing.Size</span><span class="p">(</span><span class="mi">370</span><span class="p">,</span><span class="mi">150</span><span class="p">)</span><span class="w">
+</span><span class="nv">$CenterScreen</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="n">System.Windows.Forms.FormStartPosition</span><span class="p">]::</span><span class="n">CenterScreen</span><span class="p">;</span><span class="w">
+</span><span class="nv">$Form</span><span class="o">.</span><span class="nf">StartPosition</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nv">$CenterScreen</span><span class="w">
+</span><span class="nv">$Form</span><span class="o">.</span><span class="nf">TopMost</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nv">$True</span><span class="w">
+
+</span><span class="nv">$CmbChannel</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">New-Object</span><span class="w"> </span><span class="nx">System.Windows.Forms.ComboBox</span><span class="w">
+</span><span class="nv">$CmbChannel</span><span class="o">.</span><span class="nf">Text</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"Select release channel..."</span><span class="w">
+</span><span class="nv">$CmbChannel</span><span class="o">.</span><span class="nf">Location</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">New-Object</span><span class="w"> </span><span class="nx">System.Drawing.Point</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span><span class="mi">15</span><span class="p">)</span><span class="w">
+</span><span class="nv">$CmbChannel</span><span class="o">.</span><span class="nf">Size</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">New-Object</span><span class="w"> </span><span class="nx">System.Drawing.Size</span><span class="p">(</span><span class="mi">330</span><span class="p">,</span><span class="mi">80</span><span class="p">)</span><span class="w">
+</span><span class="nv">$Form</span><span class="o">.</span><span class="nf">controls</span><span class="o">.</span><span class="nf">Add</span><span class="p">(</span><span class="nv">$CmbChannel</span><span class="p">)</span><span class="w">
+
+</span><span class="c"># 중략...</span><span class="w">
+
+</span><span class="nv">$BtnUpdate</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">New-Object</span><span class="w"> </span><span class="nx">System.Windows.Forms.Button</span><span class="w">
+</span><span class="nv">$BtnUpdate</span><span class="o">.</span><span class="nf">Text</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"Update"</span><span class="w">
+</span><span class="nv">$BtnUpdate</span><span class="o">.</span><span class="nf">Location</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">New-Object</span><span class="w"> </span><span class="nx">System.Drawing.Point</span><span class="p">(</span><span class="mi">265</span><span class="p">,</span><span class="mi">75</span><span class="p">)</span><span class="w">
+</span><span class="nv">$BtnUpdate</span><span class="o">.</span><span class="nf">Enabled</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="bp">$false</span><span class="w">
+</span><span class="nv">$Form</span><span class="o">.</span><span class="nf">Controls</span><span class="o">.</span><span class="nf">Add</span><span class="p">(</span><span class="nv">$BtnUpdate</span><span class="p">)</span><span class="w">
+
+</span><span class="nv">$ChkUpdate</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">New-Object</span><span class="w"> </span><span class="nx">System.Windows.Forms.Checkbox</span><span class="w">
+</span><span class="nv">$ChkUpdate</span><span class="o">.</span><span class="nf">Text</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"Disable updates"</span><span class="w">
+</span><span class="nv">$ChkUpdate</span><span class="o">.</span><span class="nf">Location</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">New-Object</span><span class="w"> </span><span class="nx">System.Drawing.Point</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span><span class="mi">75</span><span class="p">)</span><span class="w">
+</span><span class="nv">$ChkUpdate</span><span class="o">.</span><span class="nf">Size</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">New-Object</span><span class="w"> </span><span class="nx">System.Drawing.Size</span><span class="p">(</span><span class="mi">200</span><span class="p">,</span><span class="mi">20</span><span class="p">)</span><span class="w">
+</span><span class="nv">$Form</span><span class="o">.</span><span class="nf">Controls</span><span class="o">.</span><span class="nf">Add</span><span class="p">(</span><span class="nv">$ChkUpdate</span><span class="p">)</span><span class="w">
+
+
+</span><span class="c">#Cmb contents</span><span class="w">
+</span><span class="nv">$CmbChannel</span><span class="o">.</span><span class="nf">Items</span><span class="o">.</span><span class="nf">Add</span><span class="p">(</span><span class="nv">$nameCurrent</span><span class="p">)</span><span class="w"> </span><span class="err">&gt;&gt;</span><span class="w"> </span><span class="bp">$null</span><span class="w">
+</span><span class="nv">$CmbChannel</span><span class="o">.</span><span class="nf">Items</span><span class="o">.</span><span class="nf">Add</span><span class="p">(</span><span class="nv">$nameMonthlyEnt</span><span class="p">)</span><span class="w"> </span><span class="err">&gt;&gt;</span><span class="w"> </span><span class="bp">$null</span><span class="w">
+
+</span><span class="c"># 중략...</span><span class="w">
+
+</span><span class="c">#Event handler</span><span class="w">
+
+</span><span class="nv">$CmbChannel_SelectedIndexChanged</span><span class="w"> </span><span class="o">=</span><span class="w">
+</span><span class="p">{</span><span class="w">
+    </span><span class="nv">$BtnUpdate</span><span class="o">.</span><span class="nf">Enabled</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="bp">$false</span><span class="w">
+    </span><span class="kr">if</span><span class="p">(</span><span class="nv">$CmbChannel</span><span class="o">.</span><span class="nf">Text</span><span class="w"> </span><span class="o">-eq</span><span class="w"> </span><span class="nv">$nameCurrent</span><span class="p">){</span><span class="w">
+        </span><span class="nv">$CmbBuild</span><span class="o">.</span><span class="nf">Items</span><span class="o">.</span><span class="nf">Clear</span><span class="p">()</span><span class="w">
+        </span><span class="nv">$CmbBuild</span><span class="o">.</span><span class="nf">Text</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"Select build number..."</span><span class="w">
+
+        </span><span class="kr">for</span><span class="p">(</span><span class="nv">$i</span><span class="o">=</span><span class="mi">0</span><span class="p">;</span><span class="nv">$i</span><span class="w"> </span><span class="o">-lt</span><span class="w"> </span><span class="nv">$current</span><span class="o">.</span><span class="nf">count</span><span class="p">;</span><span class="nv">$i</span><span class="o">++</span><span class="p">){</span><span class="w">
+            </span><span class="nv">$date_build</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">([</span><span class="n">regex</span><span class="p">]::</span><span class="n">matches</span><span class="p">(</span><span class="nv">$current</span><span class="o">.</span><span class="n">value</span><span class="p">[</span><span class="nv">$i</span><span class="p">],</span><span class="s1">'Version \d{4} \(Build \d{4,5}\.\d{4,5}\)'</span><span class="w"> </span><span class="p">))</span><span class="o">.</span><span class="nf">value</span><span class="w">
+            </span><span class="nv">$CmbBuild</span><span class="o">.</span><span class="nf">Items</span><span class="o">.</span><span class="nf">Add</span><span class="p">(</span><span class="nv">$date_build</span><span class="p">)</span><span class="w">
+        </span><span class="p">}</span><span class="w">
+    </span><span class="p">}</span><span class="w">
+
+</span><span class="c"># 중략...</span><span class="w">
+
+    </span><span class="kr">elseif</span><span class="p">(</span><span class="nv">$CmbChannel</span><span class="o">.</span><span class="nf">Text</span><span class="w"> </span><span class="o">-eq</span><span class="w"> </span><span class="nv">$nameDevMain</span><span class="p">){</span><span class="w">
+        </span><span class="nv">$BtnUpdate</span><span class="o">.</span><span class="nf">Enabled</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="bp">$true</span><span class="w">
+        </span><span class="nv">$CmbBuild</span><span class="o">.</span><span class="nf">Items</span><span class="o">.</span><span class="nf">Clear</span><span class="p">()</span><span class="w">
+        </span><span class="nv">$CmbBuild</span><span class="o">.</span><span class="nf">Text</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"Update to the latest build."</span><span class="w">       
+    </span><span class="p">}</span><span class="w">
+
+</span><span class="p">}</span><span class="w">
+
+</span><span class="nv">$CmbBuild_SelectedIndexChanged</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nv">$BtnUpdate</span><span class="o">.</span><span class="nf">Enabled</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nv">$True</span><span class="w"> </span><span class="p">}</span><span class="w">
+
+</span></code></pre></div></div>
+
+<h3 id="6-필요한-경우-자동-업데이트를-비활성화">6) (필요한 경우) 자동 업데이트를 비활성화</h3>
+<p>만약 특정 빌드에 문제가 있어 이전 버전으로 다운그레이드 하는 경우, 다시 자동으로 업데이트가 된다면 힘들게 되돌린 의미가 없어집니다.</p>
+
+<p>필요한 경우 자동 업데이트를 중지합니다.<br />
+  <img src="http://localhost:4000/assets/images/posts/2022-07-10-Offfice365-Update-script-checkbox.png" alt="drop-down-list" /></p>
+<div class="language-powershell highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kr">if</span><span class="p">(</span><span class="nv">$ChkUpdate</span><span class="o">.</span><span class="nf">Checked</span><span class="w"> </span><span class="o">-eq</span><span class="w"> </span><span class="bp">$true</span><span class="p">){</span><span class="w">
+    </span><span class="n">Write-Host</span><span class="w"> </span><span class="s2">"Disable updates......."</span><span class="w">
+    </span><span class="n">Start-Process</span><span class="w"> </span><span class="nx">powershell.exe</span><span class="w"> </span><span class="nt">-Verb</span><span class="w"> </span><span class="nx">runAs</span><span class="p">{</span><span class="w">
+    </span><span class="n">Set-ItemProperty</span><span class="w"> </span><span class="nt">-Path</span><span class="w"> </span><span class="nx">Registry::HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Office\ClickToRun\Configuration</span><span class="w"> </span><span class="nt">-Name</span><span class="w"> </span><span class="nx">UpdatesEnabled</span><span class="w"> </span><span class="nt">-Value</span><span class="w"> </span><span class="s2">"False"</span><span class="w">
+    </span><span class="p">}</span><span class="w">
+</span></code></pre></div></div>
+
+<h2 id="결과">결과</h2>
+<p>코드 전문은 아래에서 확인할 수 있습니다.<br />
+<a href="https://github.com/scho89/Update-Office365">Update-Office365</a></p>
+
+<p>또는 PowerShell에서 아래의 명령어로 스크립트 설치도 가능합니다.</p>
+<div class="language-powershell highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">Install-Script</span><span class="w"> </span><span class="nx">Update-Office365</span><span class="w">
+</span></code></pre></div></div>
+
+<p>설치된 스크립트는 보통 아래 경로에 저장됩니다.<br />
+<code class="language-plaintext highlighter-rouge">C:\Users\&lt;UserName&gt;\Documents\WindowsPowerShell\Scripts</code></p>
+
+:ET
