@@ -258,6 +258,15 @@ category_archive:
 tag_archive:
   type: liquid
   path: /tags/
+
+en-us_archive:
+  type: liquid
+  path: /en-us/
+ko-kr_archive:
+  type: liquid
+  path: /ko-kr/
+
+
 # https://github.com/jekyll/jekyll-archives
 # jekyll-archives:
 #   enabled:

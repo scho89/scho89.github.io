@@ -5,8 +5,7 @@ categories:
   - ko-kr 
   - Microsoft365
 tags:
-  - Exchange Server
-  - PowerShell
+  - Exchange
 
 header:
   teaser: /assets/images/posts/2022-07-26-EWS-impersonated-authentication-ews-download.png

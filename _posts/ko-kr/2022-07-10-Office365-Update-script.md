@@ -5,7 +5,7 @@ categories:
   - ko-kr 
   - Microsoft365
 tags:
-  - PowerShell
+  - Office
 
 header:
   teaser: /assets/images/posts/2022-07-10-Offfice365-Update-script-drop-down-list.png
