@@ -3,8 +3,6 @@ title:  Typo in URL..
 classes: single
 categories:
   - Microsoft365
-tags:
-  - PowerShell
 
 hidden: true
 
