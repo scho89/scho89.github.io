@@ -1,11 +1,13 @@
 ---
 title:  Junction을 이용한 문서 라이브러리 마이그레이션
-classes: wide
+
 categories:
   - ko-kr 
   - Microsoft365
 tags:
   - SharePoint
+
+toc_sticky: true
 
 header:
   teaser: /assets/images/posts/2022-10-11-Migrate-cloud-storage-using-junction-powershell1.png
