@@ -30,7 +30,7 @@ Microsoft 365 테넌트 간 데이터를 옮겨야하는 일이 종종 발생하
 원본 데이터를 모두 다운로드하기 위해 OneDrive 클라이언트를 이용해 문서 라이브러리를 모두 동기화 했습니다.  
 ![synced]({{ site.url }}{{ site.baseurl }}/assets/images/posts/2022-10-11-Migrate-cloud-storage-using-junction-explorer.png)
 
-그리고, 모든 데이터를 다운로드 받기 위해 요청 기반 파일 다운로드 기능[(On-demand for Windows)][on-demand]을 꺼줬습니다.  
+그리고, 모든 데이터를 다운로드 받기 위해 요청 기반 파일 관리 기능[(On-demand for Windows)][on-demand]을 꺼줬습니다.  
 ![OnDemandOff]({{ site.url }}{{ site.baseurl }}/assets/images/posts/2022-10-11-Migrate-cloud-storage-using-junction-OneDrive-DisableOnDemand.png)  
 
 잠시 후 모든 데이터가 다운로드 완료됩니다. 탐색기에서 파일 및 폴더의 [동기화 상태를 확인][sync-status] 할 수 있습니다.  
